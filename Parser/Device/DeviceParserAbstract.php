@@ -7,6 +7,7 @@
  *
  * @license http://www.gnu.org/licenses/lgpl.html LGPL v3 or later
  */
+
 namespace DeviceDetector\Parser\Device;
 
 use DeviceDetector\Parser\ParserAbstract;
@@ -662,10 +663,12 @@ abstract class DeviceParserAbstract extends ParserAbstract
 
     public function parse(): ?array
     {
-        $brand = '';
+        $brand   = '';
         $regexes = $this->getRegexes();
+
         foreach ($regexes as $brand => $regex) {
             $matches = $this->matchUserAgent($regex['regex']);
+
             if ($matches) {
                 break;
             }
@@ -675,12 +678,14 @@ abstract class DeviceParserAbstract extends ParserAbstract
             return null;
         }
 
-        if ($brand != 'Unknown') {
+        if ('Unknown' != $brand) {
             $brandId = array_search($brand, self::$deviceBrands);
-            if ($brandId === false) {
+
+            if (false === $brandId) {
                 // This Exception should never be thrown. If so a defined brand name is missing in $deviceBrands
-                throw new \Exception("The brand with name '{$brand}' should be listed in the deviceBrands array. Tried to parse user agent: ".$this->userAgent); // @codeCoverageIgnore
+                throw new \Exception("The brand with name '{$brand}' should be listed in the deviceBrands array. Tried to parse user agent: " . $this->userAgent); // @codeCoverageIgnore
             }
+
             $this->brand = (string) $brandId;
         }
 
@@ -689,14 +694,17 @@ abstract class DeviceParserAbstract extends ParserAbstract
         }
 
         $this->model = '';
+
         if (isset($regex['model'])) {
             $this->model = $this->buildModel($regex['model'], $matches);
         }
 
         if (isset($regex['models'])) {
             $modelRegex = '';
+
             foreach ($regex['models'] as $modelRegex) {
                 $modelMatches = $this->matchUserAgent($modelRegex['regex']);
+
                 if ($modelMatches) {
                     break;
                 }
@@ -728,7 +736,7 @@ abstract class DeviceParserAbstract extends ParserAbstract
 
         $model = preg_replace('/ TD$/i', '', $model);
 
-        if ($model === 'Build' || empty($model)) {
+        if ('Build' === $model || empty($model)) {
             return '';
         }
 
